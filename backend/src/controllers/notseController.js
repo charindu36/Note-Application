@@ -62,5 +62,4 @@ export async function deleteNotes(req, res) {
     console.log("delete note error", error);
     res.status(500).json({ message: "internal server error" });
   }
-  res.status(200).json({ message: "note deleted successfully" });
 }

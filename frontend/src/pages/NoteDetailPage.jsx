@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, Link } from "react-router";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
@@ -27,38 +27,51 @@ export const NoteDetailPage = () => {
     fetchNote();
   }, [id]);
 
-  const handleDelete = async() => {
-    if(!window.confirm("are you sure want to delete this note?"))return;
-    try{
-       await api.delete(`/notes/${id}`)
-       toast.success("note deleted")
-       navigate("/")
-    }catch(error){
-       toast.error("failed to delete note");
+  const handleDelete = async () => {
+    if (!window.confirm("are you sure want to delete this note?")) return;
+    try {
+      await api.delete(`/notes/${id}`);
+      toast.success("note deleted");
+      navigate("/");
+    } catch (error) {
+      toast.error("failed to delete note");
     }
   };
-  const handleSave =async () => {
-    if(!note.title.trim()||!note.content.trim()){
-      toast.error("please add title or content")
+  const handleSave = async () => {
+    if (!note.title.trim() || !note.content.trim()) {
+      toast.error("please add title or content");
       return;
     }
-    setSaving(true)
+    setSaving(true);
 
-    try{
-       await api.put(`/notes/${id}`,note)
-       toast.success("note saved")
-       navigate("/")
-    }catch(error){
-       toast.error("failed to save note");
-    }finally{
-      setSaving(false)
+    try {
+      await api.put(`/notes/${id}`, {
+        title: note.title,
+        content: note.content,
+      });
+      toast.success("note saved");
+      navigate("/");
+    } catch (error) {
+      toast.error("failed to save note");
+    } finally {
+      setSaving(false);
     }
   };
 
   if (loading) {
-    <div className="min-h-screen bg-base-200 flex items-center justify-center">
-      <LoaderIcon className="animate-spin size-10" />
-    </div>;
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <LoaderIcon className="animate-spin size-10" />
+      </div>
+    );
+  }
+
+  if (!note) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <p className="text-error">Note not found</p>
+      </div>
+    );
   }
 
   return (
@@ -107,7 +120,7 @@ export const NoteDetailPage = () => {
               <div className="card-actions justify-end">
                 <button
                   className="btn btn-primary"
-                  disable={saving}
+                  disabled={saving}
                   onClick={handleSave}
                 >
                   {saving ? "Saving..." : "save Changes"}
